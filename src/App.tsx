@@ -57,8 +57,16 @@ function App() {
   const [currentRowClass, setCurrentRowClass] = useState("");
   const [isGameLost, setIsGameLost] = useState(false);
   const gameOver = isGameLost || isGameWon;
-  const [levelName, setLevelName] = useState<string | null>(null);
-  const [levelTimeLeft, setLevelTimeLeft] = useState<number | null>(null);
+  const [levelName, setLevelName] = useState<string | null>(() => {
+    const saved = localStorage.getItem("selectedLevel");
+    return saved ? JSON.parse(saved).level : null;
+  });
+
+  const [levelTimeLeft, setLevelTimeLeft] = useState<number | null>(() => {
+    const saved = localStorage.getItem("selectedLevel");
+    return saved ? JSON.parse(saved).seconds ?? null : null;
+  });
+
   const [isDarkMode, setIsDarkMode] = useState(
     localStorage.getItem("theme")
       ? localStorage.getItem("theme") === "dark"
@@ -348,6 +356,10 @@ function App() {
             console.log("Selected level", level, seconds);
             setLevelName(level);
 
+            localStorage.setItem(
+              "selectedLevel",
+              JSON.stringify({ level, seconds })
+            );
             if (seconds) {
               setLevelTimeLeft(seconds);
             } else {
