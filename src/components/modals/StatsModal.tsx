@@ -20,6 +20,7 @@ type Props = {
   handleShareToClipboard: () => void
   isHardMode: boolean
   isDarkMode: boolean
+  gameOver: boolean
   isHighContrastMode: boolean
   numberOfGuessesMade: number
 }
@@ -31,6 +32,7 @@ export const StatsModal = ({
   gameStats,
   isGameLost,
   isGameWon,
+  gameOver,
   handleShareToClipboard,
   isHardMode,
   isDarkMode,
@@ -62,7 +64,7 @@ export const StatsModal = ({
         gameStats={gameStats}
         numberOfGuessesMade={numberOfGuessesMade}
       />
-      {(isGameLost || isGameWon) && (
+      {gameOver && (
         <div className="mt-5 sm:mt-6 columns-2 dark:text-white">
           <div>
             <h5>{NEW_WORD_TEXT}</h5>

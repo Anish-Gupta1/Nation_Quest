@@ -5,3 +5,15 @@ html {
 html.dark {
   background-color: rgb(15, 23, 42);
 }
+
+.timer-warning {
+  color: #dc2626; /* red-600 */
+  animation: pulse-warning 1s infinite;
+  font-weight: 700;
+}
+
+@keyframes pulse-warning {
+  0%   { opacity: 1 }
+  50%  { opacity: .4 }
+  100% { opacity: 1 }
+}
