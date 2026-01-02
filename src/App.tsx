@@ -144,8 +144,13 @@ function App() {
 
   const handleCloseInfoModal = () => {
     setIsInfoModalOpen(false);
-    // Open level selection after the info modal is closed on first run
-    setTimeout(() => setIsLevelModalOpen(true), 200);
+
+    // 👇 Only open Level Modal automatically on FIRST run
+    if (!sessionStorage.getItem("levelPromptShown")) {
+      sessionStorage.setItem("levelPromptShown", "1");
+
+      setTimeout(() => setIsLevelModalOpen(true), 200);
+    }
   };
 
   useEffect(() => {
