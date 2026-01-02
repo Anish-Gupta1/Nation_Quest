@@ -13,20 +13,14 @@ export default function BackgroundMusic({ src }: Props) {
 
     audio.loop = true;
     audio.volume = 0.4;
+    audio.muted = true; // Start muted to allow autoplay
 
-    // Try playing immediately
+    // Try playing immediately (works because muted)
     const tryPlay = async () => {
       try {
         await audio.play();
-      } catch {
-        // If autoplay is blocked, start after first user click
-        const unlock = async () => {
-          try {
-            await audio.play();
-            document.removeEventListener("click", unlock);
-          } catch {}
-        };
-        document.addEventListener("click", unlock);
+      } catch (e) {
+        console.log("Autoplay failed:", e);
       }
     };
 
