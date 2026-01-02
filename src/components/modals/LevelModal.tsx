@@ -24,7 +24,7 @@ const LEVELS = [
   {
     id: 'nation-sage',
     title: 'Nation Sage',
-    seconds: 45,
+    seconds: 10,
     description: '45-second timer — fast & intense.',
   },
 ]

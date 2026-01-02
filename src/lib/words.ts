@@ -89,4 +89,19 @@ export const getWordOfDay = () => {
   }
 }
 
-export const { solution, solutionIndex, tomorrow } = getWordOfDay()
+const _wordOfDay = getWordOfDay()
+
+export let solution = _wordOfDay.solution
+export let solutionIndex = _wordOfDay.solutionIndex
+export let tomorrow = _wordOfDay.tomorrow
+
+export const setSolution = (newSolution: string) => {
+  solution = newSolution
+}
+
+export const setRandomSolution = () => {
+  const idx = Math.floor(Math.random() * WORDS.length)
+  solution = localeAwareUpperCase(WORDS[idx])
+  solutionIndex = -1
+  tomorrow = Date.now()
+}

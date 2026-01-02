@@ -23,6 +23,7 @@ type Props = {
   gameOver: boolean
   isHighContrastMode: boolean
   numberOfGuessesMade: number
+  onNewGame?: () => void
 }
 
 export const StatsModal = ({
@@ -38,6 +39,7 @@ export const StatsModal = ({
   isDarkMode,
   isHighContrastMode,
   numberOfGuessesMade,
+  onNewGame,
 }: Props) => {
   if (gameStats.totalGames <= 0) {
     return (
@@ -72,7 +74,10 @@ export const StatsModal = ({
               className="text-lg font-medium text-gray-900 dark:text-gray-100"
               date={Date.now() + 5000}
               daysInHours={true}
-              onComplete={() => window.location.reload()}
+              onComplete={() => {
+                handleClose()
+                onNewGame && onNewGame()
+              }}
             />
 
           </div>

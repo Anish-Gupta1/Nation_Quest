@@ -14,10 +14,10 @@ import {
   HARD_MODE_ALERT_MESSAGE,
 } from "./constants/strings";
 import {
-  MAX_WORD_LENGTH,
+  getMaxWordLength,
   MAX_CHALLENGES,
   REVEAL_TIME_MS,
-  GAME_LOST_INFO_DELAY,
+  getGameLostInfoDelay,
   WELCOME_INFO_MODAL_MS,
 } from "./constants/settings";
 import {
@@ -26,6 +26,7 @@ import {
   solution,
   findFirstUnusedReveal,
   unicodeLength,
+  setRandomSolution,
 } from "./lib/words";
 import { addStatsForCompletedGame, loadStats } from "./lib/stats";
 import {
@@ -47,7 +48,7 @@ function App() {
     "(prefers-color-scheme: dark)"
   ).matches;
 
-  const { showError: showErrorAlert, showSuccess: showSuccessAlert } =
+  const { showError: showErrorAlert, showSuccess: showSuccessAlert, hideAlert } =
     useAlert();
   const [currentGuess, setCurrentGuess] = useState("");
   const [isGameWon, setIsGameWon] = useState(false);
@@ -194,11 +195,44 @@ function App() {
     saveGameStateToLocalStorage({ guesses, solution });
   }, [guesses]);
 
+  const startNewGame = (random = false) => {
+    if (random) {
+      setRandomSolution()
+    }
+
+    sessionStorage.removeItem('gameState')
+
+    setGuesses([])
+    setCurrentGuess('')
+    setIsGameWon(false)
+    setIsGameLost(false)
+    setIsRevealing(false)
+    setCurrentRowClass('')
+
+    // clear any persistent alerts (e.g. CORRECT_WORD_MESSAGE)
+    hideAlert && hideAlert()
+
+    // restore level timer if a level with seconds is selected
+    const selected = localStorage.getItem('selectedLevel')
+    if (selected) {
+      try {
+        const parsed = JSON.parse(selected)
+        setLevelTimeLeft(parsed.seconds ?? null)
+      } catch (e) {
+        setLevelTimeLeft(null)
+      }
+    } else {
+      setLevelTimeLeft(null)
+    }
+
+    saveGameStateToLocalStorage({ guesses: [], solution })
+  }
+
   useEffect(() => {
     if (isGameWon) {
       const winMessage =
         WIN_MESSAGES[Math.floor(Math.random() * WIN_MESSAGES.length)];
-      const delayMs = REVEAL_TIME_MS * MAX_WORD_LENGTH;
+      const delayMs = REVEAL_TIME_MS * getMaxWordLength();
 
       showSuccessAlert(winMessage, {
         delayMs,
@@ -209,7 +243,7 @@ function App() {
     if (isGameLost) {
       setTimeout(() => {
         setIsStatsModalOpen(true);
-      }, GAME_LOST_INFO_DELAY);
+      }, getGameLostInfoDelay());
     }
   }, [isGameWon, isGameLost, showSuccessAlert]);
 
@@ -252,7 +286,7 @@ function App() {
 
   const onChar = (value: string) => {
     if (
-      unicodeLength(`${currentGuess}${value}`) <= MAX_WORD_LENGTH &&
+      unicodeLength(`${currentGuess}${value}`) <= getMaxWordLength() &&
       guesses.length < MAX_CHALLENGES &&
       !isGameWon
     ) {
@@ -271,7 +305,7 @@ function App() {
       return;
     }
 
-    if (!(unicodeLength(currentGuess) === MAX_WORD_LENGTH)) {
+    if (!(unicodeLength(currentGuess) === getMaxWordLength())) {
       setCurrentRowClass("jiggle");
       return showErrorAlert(NOT_ENOUGH_LETTERS_MESSAGE, {
         onClose: clearCurrentRowClass,
@@ -301,12 +335,12 @@ function App() {
     // chars have been revealed
     setTimeout(() => {
       setIsRevealing(false);
-    }, REVEAL_TIME_MS * MAX_WORD_LENGTH);
+    }, REVEAL_TIME_MS * getMaxWordLength());
 
     const winningWord = isWinningWord(currentGuess);
 
     if (
-      unicodeLength(currentGuess) === MAX_WORD_LENGTH &&
+      unicodeLength(currentGuess) === getMaxWordLength() &&
       guesses.length < MAX_CHALLENGES &&
       !isGameWon
     ) {
@@ -323,7 +357,7 @@ function App() {
         setIsGameLost(true);
         showErrorAlert(CORRECT_WORD_MESSAGE(solution), {
           persist: true,
-          delayMs: REVEAL_TIME_MS * MAX_WORD_LENGTH + 1,
+          delayMs: REVEAL_TIME_MS * getMaxWordLength() + 1,
         });
       }
     }
@@ -429,6 +463,7 @@ function App() {
           isDarkMode={isDarkMode}
           isHighContrastMode={isHighContrastMode}
           numberOfGuessesMade={guesses.length}
+          onNewGame={() => startNewGame(true)}
         />
         <SettingsModal
           isOpen={isSettingsModalOpen}
