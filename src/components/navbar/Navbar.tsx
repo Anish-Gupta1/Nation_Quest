@@ -3,7 +3,6 @@ import {
   ChartBarIcon,
   CogIcon,
   InformationCircleIcon,
-  GlobeAltIcon,
   AdjustmentsIcon,
 } from "@heroicons/react/outline";
 import { GAME_TITLE } from "../../constants/strings";
@@ -93,7 +92,7 @@ export const Navbar = ({
         <div className="right-icons">
           <button
             onClick={toggleMusic}
-            className="mr-2 cursor-pointer mr-2  text-3xl leading-none select-none"
+            className="cursor-pointer mr-2  text-3xl leading-none select-none"
           >
             {isMuted ? "🔇" : "🔊"}
           </button>
