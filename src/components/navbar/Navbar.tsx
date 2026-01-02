@@ -20,12 +20,22 @@ export const Navbar = ({
   setIsSettingsModalOpen,
   setIsLevelModalOpen,
 }: Props) => {
-  // Load saved preference (default: music ON)
+  // Load saved preference
   const [isMuted, setIsMuted] = useState(() => {
     return localStorage.getItem("musicMuted") === "true";
   });
 
+  // 🔁 Listen to changes triggered by the modal
+  useEffect(() => {
+    const handler = () => {
+      setIsMuted(localStorage.getItem("musicMuted") === "true");
+    };
 
+    window.addEventListener("music-pref-changed", handler);
+    return () => window.removeEventListener("music-pref-changed", handler);
+  }, []);
+
+  // 🎵 Sync audio element
   useEffect(() => {
     const audio = document.getElementById(
       "bg-music"
@@ -35,18 +45,18 @@ export const Navbar = ({
     audio.muted = isMuted;
 
     if (!isMuted) {
-      // Try to play — if blocked, update UI to Off
       audio.play().catch(() => {
-        setIsMuted(true); // browser blocked autoplay
+        setIsMuted(true);
       });
     }
   }, [isMuted]);
 
-  // Save preference on toggle
+  // 🎛 Navbar toggle
   const toggleMusic = () => {
     setIsMuted((prev) => {
       const next = !prev;
       localStorage.setItem("musicMuted", String(next));
+      window.dispatchEvent(new Event("music-pref-changed"));
       return next;
     });
   };
@@ -59,6 +69,7 @@ export const Navbar = ({
             className="h-6 w-6 mr-2 cursor-pointer dark:stroke-white"
             onClick={() => setIsInfoModalOpen(true)}
           />
+
           <button
             onClick={toggleMusic}
             className="h-6 w-6 mr-2 cursor-pointer dark:stroke-white"
@@ -67,7 +78,9 @@ export const Navbar = ({
           </button>
         </div>
 
-        <p className="text-xl ml-2.5 font-bold dark:text-white">{GAME_TITLE}</p>
+        <p className="text-xl ml-2.5 font-bold dark:text-white">
+          {GAME_TITLE}
+        </p>
 
         <div className="right-icons">
           <GlobeAltIcon

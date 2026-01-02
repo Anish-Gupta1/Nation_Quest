@@ -40,6 +40,7 @@ import "./App.css";
 import { AlertContainer } from "./components/alerts/AlertContainer";
 import { useAlert } from "./context/AlertContext";
 import { Navbar } from "./components/navbar/Navbar";
+import { MusicConsentModal } from "./components/modals/MusicConsentModal";
 
 function App() {
   const prefersDarkMode = window.matchMedia(
@@ -56,6 +57,7 @@ function App() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [currentRowClass, setCurrentRowClass] = useState("");
   const [isGameLost, setIsGameLost] = useState(false);
+  const [showMusicModal, setShowMusicModal] = useState(false);
   const gameOver = isGameLost || isGameWon;
   const [levelName, setLevelName] = useState<string | null>(() => {
     const saved = localStorage.getItem("selectedLevel");
@@ -96,6 +98,18 @@ function App() {
     return loaded.guesses;
   });
 
+  const handleEnableMusic = () => {
+    localStorage.setItem("musicMuted", "false");
+    window.dispatchEvent(new Event("music-pref-changed"));
+    setShowMusicModal(false);
+  };
+
+  const handleMuteMusic = () => {
+    localStorage.setItem("musicMuted", "true");
+    window.dispatchEvent(new Event("music-pref-changed"));
+    setShowMusicModal(false);
+  };
+
   const [stats, setStats] = useState(() => loadStats());
 
   const [isHardMode, setIsHardMode] = useState(
@@ -103,6 +117,20 @@ function App() {
       ? localStorage.getItem("gameMode") === "hard"
       : false
   );
+
+  // useEffect(() => {
+  //   if (!sessionStorage.getItem("musicPromptShown")) {
+  //     setShowMusicModal(true);
+  //     sessionStorage.setItem("musicPromptShown", "1");
+  //   }
+  // }, []);
+
+  const triggerMusicPromptOnce = () => {
+    if (!sessionStorage.getItem("musicPromptShown")) {
+      setShowMusicModal(true);
+      sessionStorage.setItem("musicPromptShown", "1");
+    }
+  };
 
   useEffect(() => {
     // if no game state on load,
@@ -345,13 +373,22 @@ function App() {
           guesses={guesses}
           isRevealing={isRevealing}
         />
+        <MusicConsentModal
+          isOpen={showMusicModal}
+          onEnable={handleEnableMusic}
+          onMute={handleMuteMusic}
+        />
+
         <InfoModal
           isOpen={isInfoModalOpen}
           handleClose={handleCloseInfoModal}
         />
         <LevelModal
           isOpen={isLevelModalOpen}
-          handleClose={() => setIsLevelModalOpen(false)}
+          handleClose={() => {
+            setIsLevelModalOpen(false);
+            setTimeout(() => triggerMusicPromptOnce(), 200);
+          }}
           onSelectLevel={(level, seconds) => {
             console.log("Selected level", level, seconds);
             setLevelName(level);
