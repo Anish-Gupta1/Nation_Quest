@@ -12,8 +12,12 @@ export const isWordInWordList = (word: string) => {
 }
 
 export const isWinningWord = (word: string) => {
-  return solution === word
+  return (
+    solution.replace(/ /g, "").toLowerCase() ===
+    word.replace(/ /g, "").toLowerCase()
+  )
 }
+
 
 // build a set of previously revealed letters - present and correct
 // guess must use correct letters in that space and any other revealed letters

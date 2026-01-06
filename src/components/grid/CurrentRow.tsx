@@ -1,6 +1,6 @@
-import { getMaxWordLength } from '../../constants/settings'
 import { Cell } from './Cell'
-import { unicodeSplit } from '../../lib/words'
+import { solution, unicodeSplit } from "../../lib/words"
+
 
 type Props = {
   guess: string
@@ -8,18 +8,26 @@ type Props = {
 }
 
 export const CurrentRow = ({ guess, className }: Props) => {
-  const splitGuess = unicodeSplit(guess)
-  const emptyCells = Array.from(Array(getMaxWordLength() - splitGuess.length))
+  const solutionChars = unicodeSplit(solution)     // <-- use solution layout
+  const guessChars = unicodeSplit(guess)
+
+  let guessIndex = 0
+
   const classes = `flex justify-center mb-1 ${className}`
 
   return (
     <div className={classes}>
-      {splitGuess.map((letter, i) => (
-        <Cell key={i} value={letter} />
-      ))}
-      {emptyCells.map((_, i) => (
-        <Cell key={i} />
-      ))}
+      {solutionChars.map((char, i) => {
+        if (char === " ") {
+          return <div key={`space-${i}`} className="w-4" />
+        }
+
+        const value = guessChars[guessIndex] ?? ""
+        guessIndex++
+
+        return <Cell key={i} value={value} />
+      })}
     </div>
   )
 }
+
