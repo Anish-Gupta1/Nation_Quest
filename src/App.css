@@ -17,3 +17,48 @@ html.dark {
   50%  { opacity: .4 }
   100% { opacity: 1 }
 }
+
+.giveup-widget {
+  position: fixed;
+  z-index: 50;
+  right: 40px;
+  bottom: 60px;
+}
+
+/* 🔹 Tablets (iPad, small laptops) */
+@media (max-width: 1024px) {
+  .giveup-widget {
+    right: 20px;
+    bottom: 140px; /* above keyboard */
+    transform: scale(0.95);
+  }
+}
+
+/* 🔹 Mobile phones */
+@media (max-width: 768px) {
+  .giveup-widget {
+    right: 50%;
+    bottom: 250px; /* sits above keyboard */
+    transform: translateX(50%) scale(0.9);
+  }
+}
+
+/* 🔹 Very small screens */
+@media (max-width: 420px) {
+  .giveup-widget {
+    bottom: 250px;
+    transform: translateX(50%) scale(0.85);
+  }
+}
+.giveup-widget svg circle:last-child {
+  filter: drop-shadow(0 0 6px rgba(255, 80, 80, 0.4));
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+.giveup-widget.unlocked {
+  animation: pulse 1.2s infinite;
+}

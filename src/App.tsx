@@ -42,14 +42,20 @@ import { AlertContainer } from "./components/alerts/AlertContainer";
 import { useAlert } from "./context/AlertContext";
 import { Navbar } from "./components/navbar/Navbar";
 import { MusicConsentModal } from "./components/modals/MusicConsentModal";
+import { GiveUpWidget } from "./components/GiveUpWidget";
 
 function App() {
   const prefersDarkMode = window.matchMedia(
     "(prefers-color-scheme: dark)"
   ).matches;
 
-  const { showError: showErrorAlert, showSuccess: showSuccessAlert, hideAlert } =
-    useAlert();
+  const {
+    showError: showErrorAlert,
+    showSuccess: showSuccessAlert,
+    hideAlert,
+  } = useAlert();
+  const [isGiveUpModalOpen, setIsGiveUpModalOpen] = useState(false);
+
   const [currentGuess, setCurrentGuess] = useState("");
   const [isGameWon, setIsGameWon] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
@@ -59,6 +65,7 @@ function App() {
   const [currentRowClass, setCurrentRowClass] = useState("");
   const [isGameLost, setIsGameLost] = useState(false);
   const [showMusicModal, setShowMusicModal] = useState(false);
+  const [roundId, setRoundId] = useState(0);
   const gameOver = isGameLost || isGameWon;
   const [levelName, setLevelName] = useState<string | null>(() => {
     const saved = localStorage.getItem("selectedLevel");
@@ -98,6 +105,16 @@ function App() {
     }
     return loaded.guesses;
   });
+  const handleGiveUp = () => {
+    setIsGiveUpModalOpen(false);
+
+    setStats(addStatsForCompletedGame(stats, MAX_CHALLENGES));
+    setIsGameLost(true);
+
+    showErrorAlert(CORRECT_WORD_MESSAGE(solution), { persist: true });
+
+    setTimeout(() => setIsStatsModalOpen(true), 800);
+  };
 
   const handleEnableMusic = () => {
     localStorage.setItem("musicMuted", "false");
@@ -197,36 +214,42 @@ function App() {
 
   const startNewGame = (random = false) => {
     if (random) {
-      setRandomSolution()
+      setRandomSolution();
     }
 
-    sessionStorage.removeItem('gameState')
+    sessionStorage.removeItem("gameState");
 
-    setGuesses([])
-    setCurrentGuess('')
-    setIsGameWon(false)
-    setIsGameLost(false)
-    setIsRevealing(false)
-    setCurrentRowClass('')
+    setGuesses([]);
+    setCurrentGuess("");
+    setIsGameWon(false);
+    setIsGameLost(false);
+    setIsRevealing(false);
+    setCurrentRowClass("");
+    hideAlert && hideAlert();
 
-    // clear any persistent alerts (e.g. CORRECT_WORD_MESSAGE)
-    hideAlert && hideAlert()
-
-    // restore level timer if a level with seconds is selected
-    const selected = localStorage.getItem('selectedLevel')
+    const selected = localStorage.getItem("selectedLevel");
     if (selected) {
       try {
-        const parsed = JSON.parse(selected)
-        setLevelTimeLeft(parsed.seconds ?? null)
-      } catch (e) {
-        setLevelTimeLeft(null)
+        const parsed = JSON.parse(selected);
+        setLevelTimeLeft(parsed.seconds ?? null);
+      } catch {
+        setLevelTimeLeft(null);
       }
     } else {
-      setLevelTimeLeft(null)
+      setLevelTimeLeft(null);
     }
 
-    saveGameStateToLocalStorage({ guesses: [], solution })
-  }
+    saveGameStateToLocalStorage({ guesses: [], solution });
+
+    // 👇 NEW — force Give-Up widget reset
+    setRoundId((id) => id + 1);
+  };
+
+  useEffect(() => {
+    if (!isGameWon && !isGameLost) {
+      setIsGiveUpModalOpen(true);
+    }
+  }, [guesses.length]);
 
   useEffect(() => {
     if (isGameWon) {
@@ -475,6 +498,14 @@ function App() {
           isHighContrastMode={isHighContrastMode}
           handleHighContrastMode={handleHighContrastMode}
         />
+        <GiveUpWidget
+          key={roundId}
+          initialDelay={10}
+          holdTime={2}
+          disabled={gameOver}
+          onGiveUp={handleGiveUp}
+        />
+
         <AlertContainer />
       </div>
     </div>
