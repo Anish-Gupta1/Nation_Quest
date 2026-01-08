@@ -500,7 +500,7 @@ function App() {
         />
         <GiveUpWidget
           key={roundId}
-          initialDelay={10}
+          initialDelay={60}
           holdTime={2}
           disabled={gameOver}
           onGiveUp={handleGiveUp}

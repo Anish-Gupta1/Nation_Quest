@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Nation_Quest/static/css/main.41e61491.css",
+    "main.js": "/Nation_Quest/static/js/main.f1e756d7.js",
+    "static/js/453.1c7ad31a.chunk.js": "/Nation_Quest/static/js/453.1c7ad31a.chunk.js",
+    "index.html": "/Nation_Quest/index.html",
+    "main.41e61491.css.map": "/Nation_Quest/static/css/main.41e61491.css.map",
+    "main.f1e756d7.js.map": "/Nation_Quest/static/js/main.f1e756d7.js.map",
+    "453.1c7ad31a.chunk.js.map": "/Nation_Quest/static/js/453.1c7ad31a.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.41e61491.css",
+    "static/js/main.f1e756d7.js"
+  ]
+}
